@@ -1,7 +1,8 @@
 import { createGlobalStyle } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
@@ -54,7 +55,7 @@ table {
 }
 
 body {
-	font-family: 'Inter',sans-serif;
+	font-family: 'Monteserrat',sans-serif;
 	background-color: #007CB8;
 }
 `;

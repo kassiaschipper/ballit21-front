@@ -1,19 +1,59 @@
 import styled from "styled-components";
 import BallitLogo from "../../assets/images/BallItLogo.png";
 import { useState } from "react";
+import { postTeams } from "../../service/ballit21Service";
 
 export default function Home() {
-//vai começar com o número mínimo de cadastros dando a possibilidade
-//de alterar para 12 ou 16 que são as possibilidades válidas.
-const [numberOfTeams, setNumberOfTeams] = useState(8);
+  //vai começar com o número mínimo de cadastros dando a possibilidade
+  //de alterar para 12 ou 16 que são as possibilidades válidas.
+  const [numberOfTeams, setNumberOfTeams] = useState(8);
+  const [disabledInput, setDisabledInput] = useState(false);
+  //vai inicializar o estado de teams com uma lista de 8 objetos, número mínimo de times, 
+  //Cada objeto, inicia com os campos vazios, contém as propriedades que eu preciso para cadastrar um time
+  const [teams, setTeams] = useState(
+    Array.from({ length: 8 }, () => ({
+      name: "",
+      war_cry: "",
+      year: "",
+    }))
+  );
 
-const handleButtonClick = (teams) => {
-      setNumberOfTeams(teams);
-};
-  
+  //Quando o botão for clicado vai receber o número de times escolhido, 8,12,16
+  //é atualizado e cria uma nova lista de times com o tamanho de teamsOptions
+  const handleButtonClick = (teamsOptions) => {
+    setNumberOfTeams(teamsOptions);
+    setTeams(
+      Array.from({ length: teamsOptions }, () => ({
+        name: "",
+        war_cry: "",
+        year: "",
+      }))
+    );
+  };
+
+  //Vai atualizar os estados dos teams quando forem inseridas os inputs no formulário
+  const handleInputChange = (index, field, value) => {
+    const newTeams = [...teams];
+    newTeams[index][field] = value;
+    setTeams(newTeams);
+  };
+
 const registrations = Array.from({ length: numberOfTeams });
 
-return (
+  function sendForm(e) {
+    e.preventDefault();
+    setDisabledInput(true);
+
+    postTeams(teams)
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
+  }
+
+  return (
     <>
       <LogoWrapper>
         <img src={BallitLogo} alt="Logo Ball It"></img>
@@ -22,7 +62,8 @@ return (
         Bem vindos ao sistema Ball It #21 <br></br>Cadastre os times e gerencie
         as partidas!{" "}
         <p>
-          Comece escolhendo quantos times vão participar do campeonato, 8, 12 ou 16 <br></br>
+          Comece escolhendo quantos times vão participar do campeonato, 8, 12 ou
+          16 <br></br>
           Quando quiser iniciar o campeonato clique no botão Salvar e Iniciar.
         </p>
       </TitleWrapper>
@@ -31,17 +72,50 @@ return (
         <button onClick={() => handleButtonClick(12)}>12 times</button>
         <button onClick={() => handleButtonClick(16)}>16 times</button>
       </OptionsWrapper>
-      {registrations.map((_,index) => (
-        <RegistrationWrapper key={index}>
-          <TeamWrapper>
-            <p>Time #{index+1}</p>
-            <input type="text" placeholder="Nome do time" />
-            <input type="text" placeholder="Grito de guerra" />
-            <input type="text" placeholder="Ano de fundação" />
-          </TeamWrapper>
-        </RegistrationWrapper>
-      ))}
-      <ButtonWrapper><button>Salvar e Iniciar</button></ButtonWrapper>
+      <form onSubmit={sendForm}>
+        {registrations.map((_, index) => (
+          <RegistrationWrapper key={index}>
+            <TeamWrapper>
+              <p>Time #{index + 1}</p>
+              <input
+                type="text"
+                placeholder="Nome do time"
+                maxLength={50}
+                value={teams[index].name}
+                onChange={(e) =>
+                  handleInputChange(index, "name", e.target.value)
+                }
+                required
+              />
+              <input
+                type="text"
+                placeholder="Grito de guerra"
+                maxLength={300}
+                value={teams[index].war_cry}
+                onChange={(e) =>
+                  handleInputChange(index, "war_cry", e.target.value)
+                }
+                required
+              />
+              <input
+                type="text"
+                placeholder="Ano de fundação"
+                value={teams[index].year}
+                onChange={(e) =>
+                  handleInputChange(index, "year", e.target.value)
+                }
+                maxLength={4}
+                required
+              />
+            </TeamWrapper>
+          </RegistrationWrapper>
+        ))}
+        <ButtonWrapper>
+          <button type="submit" disabled={disabledInput}>
+            Salvar e Iniciar
+          </button>
+        </ButtonWrapper>
+      </form>
     </>
   );
 }
@@ -62,7 +136,6 @@ const TitleWrapper = styled.div`
     margin-bottom: 1%;
   }
 `;
-
 const LogoWrapper = styled.div`
   width: 10rem;
   height: 10rem;
@@ -76,13 +149,13 @@ const LogoWrapper = styled.div`
 `;
 
 const OptionsWrapper = styled.div`
-width: 55%;
-height: auto;
-margin: 0 auto;
-display: flex;
-justify-content: space-around;
-margin-bottom: 3%;
-button{
+  width: 55%;
+  height: auto;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 3%;
+  button {
     margin-top: 10px;
     width: 10rem;
     color: white;
@@ -92,8 +165,7 @@ button{
     border-radius: 10px;
     cursor: pointer;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-}
-
+  }
 `;
 const RegistrationWrapper = styled.div`
   width: 100%;
@@ -102,25 +174,25 @@ const RegistrationWrapper = styled.div`
   padding-top: 20px;
   display: flex;
   justify-content: center;
-   
+  padding-right: 45px;
 `;
 const TeamWrapper = styled.div`
-height: 6vh;
-width: 70%;
-display: flex;
-flex-direction: row;
-justify-content: space-between;
-align-items: center;
+  height: 6vh;
+  width: 70%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 
-p{
+  p {
     width: 5rem;
-    color:white;
+    color: white;
     padding-bottom: 1rem;
     padding-left: 0.5rem;
     font-weight: 700;
-}
+  }
 
- input {
+  input {
     background-color: white;
     width: 20vw;
     height: 6vh;
@@ -137,28 +209,25 @@ p{
       padding-left: 2px;
     }
   }
- 
 `;
 
 const ButtonWrapper = styled.div`
-width: 50%;
-margin: 0 auto;
-height: 2rem;
-display: flex;
-justify-content: center;
-margin-top: 1%;
-margin-bottom: 1%;
+  width: 50%;
+  margin: 0 auto;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  margin-top: 1%;
+  margin-bottom: 1%;
 
-button{
+  button {
     background-color: white;
     width: 35%;
-    color: #007CB8;
-    border:none;
+    color: #007cb8;
+    border: none;
     border-radius: 15px;
     font-size: 24px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     cursor: pointer;
-    
-}
-
+  }
 `;

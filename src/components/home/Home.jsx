@@ -1,13 +1,15 @@
 import styled from "styled-components";
 import BallitLogo from "../../assets/images/BallItLogo.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { postTeams } from "../../service/ballit21Service";
+import { useNavigate } from "react-router-dom"; 
 
 export default function Home() {
   //vai começar com o número mínimo de cadastros dando a possibilidade
   //de alterar para 12 ou 16 que são as possibilidades válidas.
   const [numberOfTeams, setNumberOfTeams] = useState(8);
   const [disabledInput, setDisabledInput] = useState(false);
+  
   //vai inicializar o estado de teams com uma lista de 8 objetos, número mínimo de times, 
   //Cada objeto, inicia com os campos vazios, contém as propriedades que eu preciso para cadastrar um time
   const [teams, setTeams] = useState(
@@ -17,6 +19,8 @@ export default function Home() {
       year: "",
     }))
   );
+  const navigate = useNavigate();
+
 
   //Quando o botão for clicado vai receber o número de times escolhido, 8,12,16
   //é atualizado e cria uma nova lista de times com o tamanho de teamsOptions
@@ -36,6 +40,7 @@ export default function Home() {
     const newTeams = [...teams];
     newTeams[index][field] = value;
     setTeams(newTeams);
+
   };
 
 const registrations = Array.from({ length: numberOfTeams });
@@ -52,7 +57,26 @@ const registrations = Array.from({ length: numberOfTeams });
         console.log(res);
       });
   }
+  
+  useEffect(() => {
+    console.log(teams);
+  }, [teams]);
 
+  //função para embaralhar o array com os times
+  function shuffleTeams(teams) {
+    // Itera sobre cada elemento do array a partir do último até o primeiro
+    for (let i = teams.length - 1; i > 0; i--) {
+      // Seleciona um índice aleatório entre 0 e i
+      let j = Math.floor(Math.random() * (i + 1));
+      // Troca os elementos teams[i] e teams[j]
+      let temp = teams[i];
+      teams[i] = teams[j];
+      teams[j] = temp;
+    }
+    // Retorna o array embaralhado
+    return teams;
+  }
+  
   return (
     <>
       <LogoWrapper>
@@ -111,7 +135,10 @@ const registrations = Array.from({ length: numberOfTeams });
           </RegistrationWrapper>
         ))}
         <ButtonWrapper>
-          <button type="submit" disabled={disabledInput}>
+          <button type="submit" disabled={disabledInput} onClick={() => {
+            let shuffled = shuffleTeams(teams);
+            navigate("/matches", { state: { teams: shuffled } })
+          }}>
             Salvar e Iniciar
           </button>
         </ButtonWrapper>

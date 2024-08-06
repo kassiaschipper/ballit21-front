@@ -1,11 +1,25 @@
 import styled from "styled-components";
 import BallitLogo from "../../assets/images/BallItLogo.png";
 import { useLocation } from "react-router-dom";
+//import { useEffect } from "react";
+//import { insertMatches } from "../../service/ballit21Service";
+import { useNavigate } from "react-router-dom";
 
 export default function Matches() {
   const location = useLocation();
   const registrations = location.state?.teams || [];
- 
+
+  const navigate = useNavigate();
+
+  function handleNavigation(match) {
+    if(match.winnerid != null) {
+      alert('Jogo finalizado');
+    }
+    else {
+      navigate(`/match/${match.id}`, { state: {match: match} });
+    }
+  }
+
   return (
     <>
       <LogoWrapper>
@@ -16,19 +30,22 @@ export default function Matches() {
         <p>Clique nos cards para iniciar a partida que escolher</p>
       </TitleWrapper>
       <MatchesWrapper>
-        {registrations.map((_, index) =>
-          index % 2 !== 0 ? (
-            <></>
-          ) : (
-            <CardWrapper key={index}>
+        {registrations.map(
+          (_, index) => (
+            <CardWrapper
+              key={registrations[index]}
+              //onClick={()=> navigate(`/matches/${registrations[index].id}`, { state: {match: registrations[index]} })}
+              onClick={() =>handleNavigation(registrations[index])}
+              
+            >
               <p>
-                <span>{registrations[index].name}</span> VS{" "}
-                <span>{registrations[index + 1].name}</span>
+                {}
+                <span>{registrations[index].teama_name}</span> VS{" "}
+                <span>{registrations[index].teamb_name}</span>
               </p>
             </CardWrapper>
           )
         )}
-        {}
       </MatchesWrapper>
     </>
   );

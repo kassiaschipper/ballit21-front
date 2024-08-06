@@ -11,8 +11,12 @@ function postTeams(teams){
 
 function getTeams(){
     const promisse = axios.get(`${BASE_URL}/registration`)
-    return promisse
+    return promisse;
 }
 
+function insertMatches(matches){
+    const promisse = axios.post(`${BASE_URL}/match`, matches)
+    return promisse;
+}
 
-export{postTeams, getTeams }
+export{postTeams, getTeams, insertMatches }

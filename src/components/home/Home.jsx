@@ -1,16 +1,16 @@
 import styled from "styled-components";
 import BallitLogo from "../../assets/images/BallItLogo.png";
-import { useState, useEffect } from "react";
-import { postTeams } from "../../service/ballit21Service";
-import { useNavigate } from "react-router-dom"; 
+import { useState } from "react";
+import { insertMatches, postTeams } from "../../service/ballit21Service";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   //vai começar com o número mínimo de cadastros dando a possibilidade
   //de alterar para 12 ou 16 que são as possibilidades válidas.
   const [numberOfTeams, setNumberOfTeams] = useState(8);
   const [disabledInput, setDisabledInput] = useState(false);
-  
-  //vai inicializar o estado de teams com uma lista de 8 objetos, número mínimo de times, 
+
+  //vai inicializar o estado de teams com uma lista de 8 objetos, número mínimo de times,
   //Cada objeto, inicia com os campos vazios, contém as propriedades que eu preciso para cadastrar um time
   const [teams, setTeams] = useState(
     Array.from({ length: 8 }, () => ({
@@ -20,7 +20,6 @@ export default function Home() {
     }))
   );
   const navigate = useNavigate();
-
 
   //Quando o botão for clicado vai receber o número de times escolhido, 8,12,16
   //é atualizado e cria uma nova lista de times com o tamanho de teamsOptions
@@ -40,27 +39,23 @@ export default function Home() {
     const newTeams = [...teams];
     newTeams[index][field] = value;
     setTeams(newTeams);
-
   };
 
-const registrations = Array.from({ length: numberOfTeams });
+  const registrations = Array.from({ length: numberOfTeams });
 
   function sendForm(e) {
     e.preventDefault();
     setDisabledInput(true);
 
     postTeams(teams)
-      .then((res) => {
-        console.log(res.data);
+      .then(() => {
+        let shuffled = shuffleTeams(teams);
+        sendMatchesData(shuffled);
       })
-      .catch((res) => {
-        console.log(res);
+      .catch((error) => {
+        alert(error);
       });
   }
-  
-  useEffect(() => {
-    console.log(teams);
-  }, [teams]);
 
   //função para embaralhar o array com os times
   function shuffleTeams(teams) {
@@ -76,7 +71,26 @@ const registrations = Array.from({ length: numberOfTeams });
     // Retorna o array embaralhado
     return teams;
   }
-  
+
+  function creatingMatches(shuffledTeams) {
+    let newMatches = [];
+    for (let i = 0; i < shuffledTeams.length - 1; i += 2) {
+      newMatches.push({
+        teamA_name: shuffledTeams[i].name,
+        teamB_name: shuffledTeams[i + 1].name,
+      });
+    }
+    return newMatches;
+  }
+  function sendMatchesData(shuffledTeams) {
+    let matches = creatingMatches(shuffledTeams);
+    insertMatches(matches).then((res) => {
+      navigate("/matches", { state: { teams: res.data.data } });
+    }).catch((error) => {
+      alert(error);
+    });
+  }
+
   return (
     <>
       <LogoWrapper>
@@ -135,10 +149,10 @@ const registrations = Array.from({ length: numberOfTeams });
           </RegistrationWrapper>
         ))}
         <ButtonWrapper>
-          <button type="submit" disabled={disabledInput} onClick={() => {
-            let shuffled = shuffleTeams(teams);
-            navigate("/matches", { state: { teams: shuffled } })
-          }}>
+          <button
+            type="submit"
+            disabled={disabledInput}
+          >
             Salvar e Iniciar
           </button>
         </ButtonWrapper>

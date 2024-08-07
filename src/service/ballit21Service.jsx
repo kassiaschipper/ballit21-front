@@ -25,7 +25,7 @@ function updateMatch(body){
 }
 
 function getMatches(){
-    const promisse = axios.get(`${BASE_URL}/match`);
+       const promisse = axios.get(`${BASE_URL}/matches`);
     return promisse;
 }
 

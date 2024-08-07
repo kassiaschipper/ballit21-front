@@ -39,3 +39,5 @@ O front-end deve rodar simultaneamente com o back-end em https://github.com/kass
   npm run dev
   ```
 8. Acesse o link que aparecer no terminal, e pronto já pode testar a aplicação
+
+

@@ -16,14 +16,10 @@ export default function Match() {
   const [punishmentB, setPunishmentB] = useState(0);
   const [totalA, setTotalA] = useState(50);
   const [totalB, setTotalB] = useState(50);
+  //const [listOfMatches, setListOfMatches] = useState();
   const navigate = useNavigate();
 
-  // Chega só o id
-  // Busca o match pelo id
-  // Mostra as informações da partida
-  // Ao clicar em algum botão, tem que dar update no match e chamar o get de novo, para atualizar as informações do jogo
-
-  useEffect(() => {
+ useEffect(() => {
     handleScore();
   }, [blotA, blotB, plifA, plifB, punishmentA, punishmentB]);
 
@@ -33,7 +29,7 @@ export default function Match() {
   }
 
   
-  function finishMatch(){
+  function finishMatch (){
     let  winner = null;
     
     if(totalA === totalB){
@@ -50,11 +46,17 @@ export default function Match() {
 
     let body = {matchId:match.id ,teama_blot: blotA, teama_plif: plifA, teama_punishment: punishmentA, teamb_blot: blotB, teamb_plif:plifB, teamb_punishment:punishmentB, winner:winner};
     
-    updateMatch(body);   
-    const listOfMatches = getMatches();
-    
-    navigate("/matches", { state: {teams: listOfMatches} });
-    
+    updateMatch(body).then(() => {
+      getMatches().then((res) => {
+        console.log(res.data)
+        navigate("/matches", { state: {teams: res.data} });
+        //setListOfMatches(res.data);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }).catch((error) => {
+      console.log(error);
+    });   
 
   }
 

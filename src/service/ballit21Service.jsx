@@ -10,13 +10,23 @@ function postTeams(teams){
 }
 
 function getTeams(){
-    const promisse = axios.get(`${BASE_URL}/registration`)
+    const promisse = axios.get(`${BASE_URL}/registration`);
     return promisse;
 }
 
 function insertMatches(matches){
-    const promisse = axios.post(`${BASE_URL}/match`, matches)
+    const promisse = axios.post(`${BASE_URL}/match`, matches);
     return promisse;
 }
 
-export{postTeams, getTeams, insertMatches }
+function updateMatch(body){
+    const promisse = axios.put(`${BASE_URL}/match`, body);
+    return promisse;
+}
+
+function getMatches(){
+    const promisse = axios.get(`${BASE_URL}/match`);
+    return promisse;
+}
+
+export{postTeams, getTeams, insertMatches,updateMatch, getMatches}

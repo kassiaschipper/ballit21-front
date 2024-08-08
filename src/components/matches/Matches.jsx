@@ -8,17 +8,20 @@ import {
   getNoWinnerList,
   getWinners,
   insertMatches,
+   clearData,
 } from "../../service/ballit21Service";
 
 export default function Matches() {
   const location = useLocation();
-  const [registrations, setRegistrations] = useState(location.state?.teams || []);
+  const [registrations, setRegistrations] = useState(
+    location.state?.teams || []
+  );
   let sending = false;
 
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    if(registrations.length ===1) {
+  useEffect(() => {
+    if (registrations.length === 1) {
       return;
     }
     //Final
@@ -26,11 +29,11 @@ export default function Matches() {
     //   navigate('/champion', {state: registrations[0]})
     //   return;
     // }
-    if(!sending && registrations.every((match) => match.winner !== null)) {
+    if (!sending && registrations.every((match) => match.winner !== null)) {
       sending = true;
-      handleWinners()
+      handleWinners();
     }
-  },[registrations])
+  }, [registrations]);
 
   function handleNavigation(match) {
     if (match.winner !== null) {
@@ -40,54 +43,49 @@ export default function Matches() {
     }
   }
 
-  function handleWinners () {
+  function handleWinners() {
     //TODO
-  //verifico se todos os matches já winner
-  //se sim
-  //pego os vencedores da rodada
-  //apago a tabela matches
-  //embaralho os vencedores
-  //insiro em macthes
+    //verifico se todos os matches já winner
+    //se sim
+    //pego os vencedores da rodada
+    //apago a tabela matches
+    //embaralho os vencedores
+    //insiro em macthes
 
-  getNoWinnerList()
-  .then((res) => {
-    if (res.data.data === 0) {
-      //se a contagem de mathces sem winner for 0 significa que todas as partidas já aconteceram
-      //precido dos vencedores das partida
-      getWinners()
-        .then((res) => {
-          let listOfWinners = res.data.data;
-          let teams = listOfWinners.map((value) => {
-            return {name: value.winner}
-          });
-          let shuffledWinners = shuffleTeams(teams);
-          console.log(shuffledWinners)
-          //deleta os dados de macthes
-          deleteMatches()
+    getNoWinnerList()
+      .then((res) => {
+        if (res.data.data === 0) {
+          //se a contagem de mathces sem winner for 0 significa que todas as partidas já aconteceram
+          //precido dos vencedores das partida
+          getWinners()
             .then((res) => {
-              console.log(res.data);
-              //insere os os times vencedores na tabela mactch para iniciar nova partida
-              let newMatches = creatingMatches(shuffledWinners);
-              console.log(newMatches
-
-              )
-              insertMatches(newMatches)
+              let listOfWinners = res.data.data;
+              let teams = listOfWinners.map((value) => {
+                return { name: value.winner };
+              });
+              let shuffledWinners = shuffleTeams(teams);
+              console.log(shuffledWinners);
+              //deleta os dados de macthes
+              deleteMatches()
                 .then((res) => {
-                 setRegistrations(res.data.data);
+                  console.log(res.data);
+                  //insere os os times vencedores na tabela mactch para iniciar nova partida
+                  let newMatches = creatingMatches(shuffledWinners);
+                  console.log(newMatches);
+                  insertMatches(newMatches)
+                    .then((res) => {
+                      setRegistrations(res.data.data);
+                    })
+                    .catch((error) => console.log(error));
                 })
                 .catch((error) => console.log(error));
             })
-            .catch((error) => console.log(error));
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-      //deletar os dados de match
-    }
-    //console.log(res.data.data);
-  })
-  .catch((error) => console.log(error));
+            .catch((error) => {
+              console.log(error);
+            });
+        }
+      })
+      .catch((error) => console.log(error));
   }
 
   function shuffleTeams(teams) {
@@ -110,6 +108,16 @@ export default function Matches() {
     }
     return newMatches;
   }
+
+  function clearAllData(){
+    clearData()
+    .then((res) => {
+      console.log(res.data);
+      navigate(`/`);
+    }) 
+    .catch((error) => console.log(error));
+  }
+
   return (
     <>
       <LogoWrapper>
@@ -140,14 +148,28 @@ export default function Matches() {
               >
                 <p>Essa partida foi encerrada!</p>{" "}
                 <span>
-                  O time {registrations.length === 1 ? 'campeão' : 'vencedor'} é : <h1>{registrations[index].winner}</h1>
+                  O time{" "}
+                  {registrations.length === 1
+                    ? "campeão do campeonato"
+                    : "vencedor"}{" "}
+                  é : <h1>{registrations[index].winner}</h1>
                 </span>
               </WinnerWrapper>
             </>
           )
         )}
+        {registrations.length === 1 ? (
+          <ButtonWraaper>
+            {" "}
+            <button
+              onClick={() => clearAllData()}            >
+              Iniciar novo campeonato
+            </button>
+          </ButtonWraaper>
+        ) : (
+          <></>
+        )}
       </MatchesWrapper>
-      
     </>
   );
 }
@@ -241,5 +263,24 @@ const WinnerWrapper = styled.div`
   h1 {
     font-size: 24px;
     padding-left: 0.5rem;
+  }
+`;
+const ButtonWraaper = styled.div`
+  margin-top: 5rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  button {
+    background-color: white;
+    width: 18rem;
+    height: 3rem;
+    border-radius: 10px;
+    border: none;
+    color: #007cb8;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   }
 `;

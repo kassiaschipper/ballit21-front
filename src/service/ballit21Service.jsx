@@ -46,6 +46,11 @@ function getWinners() {
   return promisse;
 }
 
+function clearData(){
+  const promisse = axios.delete(`${BASE_URL}/clearall`);
+  return promisse;
+}
+
 export {
   postTeams,
   getTeams,
@@ -55,4 +60,5 @@ export {
   getNoWinnerList,
   deleteMatches,
   getWinners,
+  clearData
 };

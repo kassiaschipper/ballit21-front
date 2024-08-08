@@ -48,9 +48,7 @@ export default function Match() {
     
     updateMatch(body).then(() => {
       getMatches().then((res) => {
-        console.log(res.data)
         navigate("/matches", { state: {teams: res.data} });
-        //setListOfMatches(res.data);
       }).catch((error) => {
         console.log(error);
       });
